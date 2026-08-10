@@ -18,7 +18,7 @@
 ## 功能特性
 
 - **Server Actions** 处理表单提交，无需手写 REST API
-- **Better Auth + Middleware** 实现登录保护与 Session 管理
+- **Better Auth + Proxy** 实现登录保护与 Session 管理
 - **分层架构**（Domain → Service → Repository → Infrastructure）解耦业务与数据库/认证细节
 - **Zod** 校验留言内容（1–200 字）
 - **GitHub Actions** 自动执行格式检查、Lint、类型检查、测试与构建
@@ -46,7 +46,7 @@ guestbook/
 │   │   └── prisma/                # Prisma Client 与留言仓储
 │   ├── repositories/              # 数据访问接口 + 依赖注入
 │   ├── services/                  # 业务逻辑层
-│   └── middleware.ts              # 路由守卫（未登录跳转 /login）
+│   └── proxy.ts                   # 路由守卫（未登录跳转 /login）
 ├── .env.example                   # 环境变量模板
 ├── package.json
 └── vitest.config.ts
