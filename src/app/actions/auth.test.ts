@@ -63,7 +63,7 @@ describe('auth actions', () => {
     expect(redirectMock).toHaveBeenCalledWith('/')
   })
 
-  it('redirects to login with message after successful signup', async () => {
+  it('redirects home after successful signup', async () => {
     signupMock.mockResolvedValue(undefined)
 
     const { signup } = await import('@/app/actions/auth')
@@ -73,9 +73,7 @@ describe('auth actions', () => {
 
     await expect(signup(formData)).rejects.toThrow('NEXT_REDIRECT')
 
-    expect(redirectMock).toHaveBeenCalledWith(
-      `/login?message=${encodeURIComponent('注册成功，请登录')}`
-    )
+    expect(redirectMock).toHaveBeenCalledWith('/')
   })
 
   it('redirects to signup with error when registration fails', async () => {

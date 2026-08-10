@@ -35,7 +35,8 @@ export async function signup(formData: FormData) {
     throw error
   }
 
-  redirect(`/login?message=${encodeURIComponent('注册成功，请登录')}`)
+  revalidatePath('/', 'layout')
+  redirect('/')
 }
 
 export async function logout() {
