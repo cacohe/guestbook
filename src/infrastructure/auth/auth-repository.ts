@@ -51,8 +51,13 @@ export class BetterAuthRepository implements AuthRepository {
         headers: await headers(),
       })
     } catch (error) {
-      if (error instanceof Error && error.message.includes('PASSWORD_TOO_SHORT')) {
-        throw new RegistrationError(`密码至少需要 ${MIN_PASSWORD_LENGTH} 位字符`)
+      if (
+        error instanceof Error &&
+        error.message.includes('PASSWORD_TOO_SHORT')
+      ) {
+        throw new RegistrationError(
+          `密码至少需要 ${MIN_PASSWORD_LENGTH} 位字符`
+        )
       }
       throw new RegistrationError()
     }
