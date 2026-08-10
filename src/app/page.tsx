@@ -1,33 +1,43 @@
-import { createClient } from '@/lib/supabase'
 import MessageForm from '@/components/MessageForm'
 import { logout } from '@/app/actions/auth'
+import { messageService } from '@/services/message-service'
+
+// 留言数据依赖 Session 与数据库，禁用静态预渲染
+export const dynamic = 'force-dynamic'
 
 export default async function Home() {
-  const supabase = await createClient()
-  
-  // 获取当前用户
-  const { data: { user } } = await (supabase).auth.getUser()
-  
-  // 级联查询：获取 message 的同时获取对应的 profile 昵称
-  const { data: messages } = await (supabase)
-    .from('messages')
-    .select('*, profiles(display_name)')
-    .order('created_at', { ascending: false })
+  let messages
+
+  try {
+    messages = await messageService.listMessages()
+  } catch (error) {
+    if (error instanceof Error && error.name === 'PersistenceError') {
+      throw new Error(error.message)
+    }
+    throw error
+  }
 
   return (
-    <div className="max-w-2xl mx-auto p-8">
-      <div className="flex justify-between items-center mb-8">
+    <div className="mx-auto max-w-2xl p-8">
+      <div className="mb-8 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-black">社区留言板</h1>
-        <form action={logout}><button className="text-sm text-gray-500">登出</button></form>
+        <form action={logout}>
+          <button type="submit" className="text-sm text-gray-500">
+            登出
+          </button>
+        </form>
       </div>
-      
-      <MessageForm userEmail={user?.email || ''} />
+
+      <MessageForm />
 
       <div className="space-y-4">
-        {messages?.map((m: any) => (
-          <div key={m.id} className="p-4 bg-white border rounded shadow-sm text-black">
-            <p>{m.content}</p>
-            <p className="text-xs text-blue-500 mt-2">@{m.profiles?.display_name || '路人'}</p>
+        {messages.map((message) => (
+          <div
+            key={message.id}
+            className="rounded border bg-white p-4 text-black shadow-sm"
+          >
+            <p>{message.content}</p>
+            <p className="mt-2 text-xs text-blue-500">@{message.authorName}</p>
           </div>
         ))}
       </div>

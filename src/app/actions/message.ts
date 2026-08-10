@@ -1,29 +1,35 @@
 'use server'
 
-import { createClient } from '@/lib/supabase'
-import { MessageSchema } from '@/lib/schema'
+import { messageService } from '@/services/message-service'
 import { revalidatePath } from 'next/cache'
 
-export async function addMessage(prevState: any, formData: FormData) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { error: '请先登录' }
+export type MessageActionState = {
+  error?: string
+  success?: boolean
+}
 
-  // Zod 校验
-  const validatedFields = MessageSchema.safeParse({
-    content: formData.get('content'),
-  })
+/** 创建留言 Server Action：供 useActionState 消费，返回 UI 可展示的状态 */
+export async function addMessage(
+  _prevState: MessageActionState,
+  formData: FormData
+): Promise<MessageActionState> {
+  try {
+    await messageService.createMessage(formData.get('content'))
+    revalidatePath('/')
+    return { success: true }
+  } catch (error) {
+    if (error instanceof Error && error.name === 'UnauthorizedError') {
+      return { error: error.message }
+    }
 
-  if (!validatedFields.success) {
-    return { error: validatedFields.error.flatten().fieldErrors.content?.[0] }
+    if (error instanceof Error && error.name === 'ValidationError') {
+      return { error: error.message }
+    }
+
+    if (error instanceof Error && error.name === 'PersistenceError') {
+      return { error: error.message }
+    }
+
+    return { error: '操作失败，请稍后重试' }
   }
-
-  const { error } = await supabase.from('messages').insert([
-    { content: validatedFields.data.content, user_id: user.id }
-  ])
-
-  if (error) return { error: "数据库写入失败" }
-
-  revalidatePath('/')
-  return { success: true }
 }

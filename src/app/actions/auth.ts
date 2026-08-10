@@ -1,19 +1,21 @@
 'use server'
 
-import { createClient } from '@/lib/supabase'
+import { authService } from '@/services/auth-service'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 
+/** 登录 Server Action：调用 AuthService，将领域错误转为 URL 参数提示 */
 export async function login(formData: FormData) {
-  const supabase = await createClient()
   const email = formData.get('email') as string
   const password = formData.get('password') as string
 
-  const { error } = await supabase.auth.signInWithPassword({ email, password })
-
-  if (error) {
-    // 修复：URL 安全编码
-    redirect(`/login?error=${encodeURIComponent('邮箱或密码不正确')}`)
+  try {
+    await authService.login(email, password)
+  } catch (error) {
+    if (error instanceof Error && error.name === 'InvalidCredentialsError') {
+      redirect(`/login?error=${encodeURIComponent(error.message)}`)
+    }
+    throw error
   }
 
   revalidatePath('/', 'layout')
@@ -21,21 +23,22 @@ export async function login(formData: FormData) {
 }
 
 export async function signup(formData: FormData) {
-  const supabase = await createClient()
   const email = formData.get('email') as string
   const password = formData.get('password') as string
 
-  const { error } = await supabase.auth.signUp({ email, password })
-
-  if (error) {
-    redirect(`/signup?error=${encodeURIComponent(error.message)}`)
+  try {
+    await authService.signup(email, password)
+  } catch (error) {
+    if (error instanceof Error && error.name === 'RegistrationError') {
+      redirect(`/signup?error=${encodeURIComponent(error.message)}`)
+    }
+    throw error
   }
 
-  redirect('/login?message=' + encodeURIComponent('注册成功，请登录'))
+  redirect(`/login?message=${encodeURIComponent('注册成功，请登录')}`)
 }
 
 export async function logout() {
-  const supabase = await createClient()
-  await supabase.auth.signOut()
+  await authService.logout()
   redirect('/login')
 }
