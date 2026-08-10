@@ -1,4 +1,5 @@
 import { signup } from '@/app/actions/auth'
+import { MIN_PASSWORD_LENGTH } from '@/infrastructure/auth/better-auth'
 import Link from 'next/link'
 
 // 用户注册页面
@@ -55,9 +56,9 @@ export default async function SignupPage({
               name="password"
               type="password"
               required
-              minLength={6}
+              minLength={MIN_PASSWORD_LENGTH}
               className="block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 shadow-sm transition-all placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none"
-              placeholder="至少 6 位字符"
+              placeholder={`至少 ${MIN_PASSWORD_LENGTH} 位字符`}
             />
           </div>
         </div>

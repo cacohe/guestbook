@@ -4,7 +4,7 @@ import {
   RegistrationError,
 } from '@/domain/errors'
 import type { User } from '@/domain/user'
-import { auth } from '@/infrastructure/auth/better-auth'
+import { auth, MIN_PASSWORD_LENGTH } from '@/infrastructure/auth/better-auth'
 import type { AuthRepository } from '@/repositories/auth-repository'
 import { headers } from 'next/headers'
 
@@ -50,7 +50,10 @@ export class BetterAuthRepository implements AuthRepository {
         },
         headers: await headers(),
       })
-    } catch {
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('PASSWORD_TOO_SHORT')) {
+        throw new RegistrationError(`密码至少需要 ${MIN_PASSWORD_LENGTH} 位字符`)
+      }
       throw new RegistrationError()
     }
   }
