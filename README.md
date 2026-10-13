@@ -49,7 +49,7 @@
 ## 项目结构
 
 ```
-web-demo-guestbook/
+guestbook/
 ├── .github/workflows/ci.yml       # CI 流水线
 ├── docs/
 │   └── NOTES.md                   # Next.js / Better Auth / Prisma 学习笔记
@@ -98,8 +98,8 @@ web-demo-guestbook/
 Prisma CLI 只读取项目根目录的 **`.env`**，不读取 `.env.local`。Next.js 也会加载 `.env`。统一使用 `.env`。
 
 ```bash
-git clone https://github.com/cacohe/web-demo-guestbook.git
-cd web-demo-guestbook
+git clone https://github.com/cacohe/guestbook.git
+cd guestbook
 cp .env.example .env
 ```
 
